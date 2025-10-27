@@ -1,0 +1,3 @@
+INHERIT: .config/copier/mkdocs.yaml
+site_name: "Flame PyTorch"
+site_description:
