@@ -16,7 +16,7 @@ def main() -> None:
         torch.set_default_device("cuda")
     output_dir: Path = Path(sys.argv[0]).with_suffix("")
     flame = FLAME()
-    for i in range(10):
+    for i in range(flame.config.shape_params):
         shape: Float[Tensor, "batch shape"] = torch.zeros(
             (flame.batch_size, flame.config.shape_params)
         )

@@ -3,6 +3,7 @@ from pathlib import Path
 import pooch
 import pydantic
 import wrapt
+from environs import env
 
 
 def _flame_model_pooch_factory() -> pooch.Pooch:
@@ -29,7 +30,9 @@ def _default_dynamic_landmark_embedding_path() -> Path:
 
 class FlameConfig(pydantic.BaseModel):
     flame_model_path: Path = pydantic.Field(
-        default_factory=lambda: Path("./model/generic_model.pkl")
+        default_factory=lambda: env.path(
+            "FLAME_MODEL_PATH", Path("./model/generic_model.pkl")
+        )
     )
     """flame model path"""
 

@@ -1,4 +1,7 @@
 #:schema https://mise.jdx.dev/schema/mise.json
 
+[env]
+FLAME_MODEL_PATH = "{{ config_root }}/model/generic_model.pkl"
+
 [task_config]
 includes = [".config/mise/tasks", ".config/copier/mise-tasks"]

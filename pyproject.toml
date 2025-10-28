@@ -25,12 +25,13 @@ classifiers = [
   "Typing :: Typed"
 ]
 dependencies = [
+  "environs>=14,<15",
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4",
   "numpy>=2,<3",
   "pooch>=1,<2",
   "smplx>=0.1,<0.2",
-  "torch>=2,<3",
+  "torch==2.8.0",
   "wrapt>=2,<3"
 ]
 dynamic = ["version"]
@@ -49,10 +50,11 @@ dynamic = ["version"]
 build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 dev = [
   "icecream>=2,<3",
+  "liblaf-cherries>=0.6,<0.7",
   "liblaf-grapes>=6,<7",
-  "liblaf-melon>=0.8.0",
+  "liblaf-melon>=0.8,<0.9",
   "pytorch3d>=0.7,<0.8",
-  "pyvista>=0.46.3"
+  "pyvista>=0.46,<0.47"
 ]
 docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
 test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=8,<9"]

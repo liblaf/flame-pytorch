@@ -27,15 +27,14 @@ words:
   - hynek
   - inlinehilite
   - jaxtyping
+  - lbfgs
   - liblaf
   - miropsota
   - mkdocs
   - mkdocstrings
-  - ndarray
   - numprocesses
   - numpy
   - optimisation
-  - pixi
   - pycache
   - pydantic
   - pydocstyle
@@ -45,7 +44,6 @@ words:
   - pypi
   - pyplot
   - pyproject
-  - pyright
   - pyrightconfig
   - pytest
   - pyvenv
@@ -60,5 +58,6 @@ words:
   - trimesh
   - unshallow
   - venv
+  - verts
   - virtualenv
   - wissenschaften
