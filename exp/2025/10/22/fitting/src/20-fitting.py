@@ -167,11 +167,12 @@ def fit_shape(
 
 
 class Config(cherries.BaseConfig):
+    target: Path = cherries.input("00-target.vtp")
+
     output: Path = cherries.output("20-shape.ply")
     output_shape: Path = cherries.output("20-shape.txt")
     output_transform: Path = cherries.output("20-transform.txt")
     target_mask: Path = cherries.output("20-target-mask.ply")
-    target: Path = cherries.input("00-target.vtp")
 
 
 def main(cfg: Config) -> None:

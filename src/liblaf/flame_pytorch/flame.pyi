@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from jaxtyping import Float, Integer
 from torch import Tensor, nn
 
@@ -10,6 +11,7 @@ class FLAME(nn.Module):
     use_face_contour: bool
     use_3D_translation: bool  # noqa: N815
 
+    dtype: torch.dtype
     faces: Integer[np.ndarray, "faces 3"]
 
     def __init__(self, config: FlameConfig | None = None) -> None: ...
