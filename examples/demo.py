@@ -26,7 +26,18 @@ def main() -> None:
         mesh: pv.PolyData = pv.PolyData.from_regular_faces(
             vertices[0].numpy(force=True), flame.faces
         )
-        melon.save(output_dir / f"shape_{i:03d}.ply", mesh)
+        melon.save(output_dir / "shape" / f"shape_{i:03d}.ply", mesh)
+    for i in range(flame.config.expression_params):
+        expression: Float[Tensor, "batch expression"] = torch.zeros(
+            (flame.batch_size, flame.config.expression_params)
+        )
+        expression[0, i] = 1.0
+        vertices: Float[Tensor, "batch vertices 3"]
+        vertices, _ = flame(expression=expression)
+        mesh: pv.PolyData = pv.PolyData.from_regular_faces(
+            vertices[0].numpy(force=True), flame.faces
+        )
+        melon.save(output_dir / f"expression_{i:03d}.ply", mesh)
 
 
 if __name__ == "__main__":

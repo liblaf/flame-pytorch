@@ -25,13 +25,14 @@ classifiers = [
   "Typing :: Typed"
 ]
 dependencies = [
+  "attrs>=25,<26",
   "environs>=14,<15",
   "jaxtyping>=0.3,<0.4",
   "lazy-loader>=0.4",
   "numpy>=2,<3",
   "pooch>=1,<2",
   "smplx>=0.1,<0.2",
-  "torch==2.8.0",
+  "torch==2.8.0+cu129",
   "wrapt>=2,<3"
 ]
 dynamic = ["version"]
@@ -53,7 +54,7 @@ dev = [
   "liblaf-cherries>=0.6,<0.7",
   "liblaf-grapes>=6,<7",
   "liblaf-melon>=0.8,<0.9",
-  "pytorch3d>=0.7,<0.8",
+  "pytorch3d==0.7.8+pt2.8.0cu129",
   "pyvista>=0.46,<0.47"
 ]
 docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
@@ -106,10 +107,16 @@ ignore = ["F722"]
 
 [tool.uv]
 default-groups = "all"
+index-strategy = "unsafe-best-match"
 
 [[tool.uv.index]]
 name = "miropsota"
 url = "https://miropsota.github.io/torch_packages_builder/"
 
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu129"
+
 [tool.uv.sources]
 pytorch3d.index = "miropsota"
+torch.index = "pytorch"
