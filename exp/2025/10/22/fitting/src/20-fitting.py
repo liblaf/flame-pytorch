@@ -159,7 +159,7 @@ def fit_shape(
         loss.backward()
         return loss
 
-    for step in range(128):
+    for step in range(20):
         loss: Float[Tensor, ""] = optimizer.step(closure)
         cherries.log_metric("loss", loss, step=step)
         ic(shape[0, :5], transform)
@@ -168,6 +168,9 @@ def fit_shape(
 
 class Config(cherries.BaseConfig):
     output: Path = cherries.output("20-shape.ply")
+    output_shape: Path = cherries.output("20-shape.txt")
+    output_transform: Path = cherries.output("20-transform.txt")
+    target_mask: Path = cherries.output("20-target-mask.ply")
     target: Path = cherries.input("00-target.vtp")
 
 
@@ -176,22 +179,25 @@ def main(cfg: Config) -> None:
         torch.set_default_device("cuda")
     device: torch.device = torch.get_default_device()
     target_pv: pv.PolyData = melon.io.load_polydata(cfg.target)
-    target_pv = melon.tri.extract_groups(
-        target_pv,
-        [
-            "Ear",
-            "EarNeckBack",
-            "EarSocket EyeSocketTop",
-            "HeadBack",
-            "LipInnerBottom",
-            "LipInnerTop",
-            "MouthSocketBottom",
-            "MouthSocketTop",
-            "NeckBack",
-            "NeckFront",
-        ],
-        invert=True,
-    )
+    groups_exclude: list[str] = [
+        "Ear",
+        "EarNeckBack",
+        "EarSocket EyeSocketTop",
+        "HeadBack",
+        "LipInnerBottom",
+        "LipInnerTop",
+        "MouthSocketBottom",
+        "MouthSocketTop",
+        "NeckBack",
+        "NeckFront",
+    ]
+    # selection: Integer[np.ndarray, " selection"] = melon.tri.select_groups(
+    #     target_pv, groups_exclude
+    # )
+    # target_pv.cell_data["fitting-mask"] = np.zeros((target_pv.n_cells,), dtype=bool)
+    # target_pv.cell_data["fitting-mask"][selection] = True
+    target_pv = melon.tri.extract_groups(target_pv, groups_exclude, invert=True)
+    melon.io.save(cfg.target_mask, target_pv)
     target_pv.triangulate(inplace=True)
     target: Meshes = Meshes(
         verts=torch.as_tensor(target_pv.points, dtype=torch.float32)[torch.newaxis],
@@ -216,14 +222,17 @@ def main(cfg: Config) -> None:
         transform=transform,
         fit_transform=False,
     )
-    # shape, transform = fit_shape(
-    #     flame,
-    #     loss_fn=Loss(landmarks=0.0),
-    #     target=target,
-    #     target_landmarks=target_landmarks,
-    #     transform=transform,
-    #     shape=shape,
-    # )
+    shape, transform = fit_shape(
+        flame,
+        loss_fn=Loss(landmarks=1e-3),
+        target=target,
+        target_landmarks=target_landmarks,
+        transform=transform,
+        shape=shape,
+        fit_transform=False,
+    )
+    np.savetxt(cfg.output_shape, shape[0].numpy(force=True))
+    np.savetxt(cfg.output_transform, transform.numpy(force=True))
     transform3d: Transform3d = Transform3d(matrix=transform.T).to(device)
     verts: Float[Tensor, "batch vertices 3"]
     verts, _ = flame(shape=shape)
