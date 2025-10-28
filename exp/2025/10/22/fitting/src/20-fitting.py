@@ -170,8 +170,8 @@ class Config(cherries.BaseConfig):
     target: Path = cherries.input("00-target.vtp")
 
     output: Path = cherries.output("20-shape.ply")
-    output_shape: Path = cherries.output("20-shape.txt")
-    output_transform: Path = cherries.output("20-transform.txt")
+    output_shape: Path = cherries.output("20-shape.np.txt")
+    output_transform: Path = cherries.output("20-transform.np.txt")
     target_mask: Path = cherries.output("20-target-mask.ply")
 
 

@@ -12,8 +12,8 @@ from liblaf.flame_pytorch import FLAME, FlameConfig
 
 
 class Config(cherries.BaseConfig):
-    shape: Path = cherries.input("20-shape.txt")
-    transform: Path = cherries.input("20-transform.txt")
+    shape: Path = cherries.input("20-shape.np.txt")
+    transform: Path = cherries.input("20-transform.np.txt")
 
     output: Path = cherries.output("30-expression.vtp")
 
