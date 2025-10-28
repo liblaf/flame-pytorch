@@ -40,15 +40,15 @@ def main(cfg: Config) -> None:
     )
     neutral_verts = neutral_verts[0]
     neutral_verts = transform3d.transform_points(neutral_verts)
+    mesh: pv.PolyData = pv.PolyData.from_regular_faces(
+        neutral_verts.numpy(force=True), flame.faces
+    )
 
     expression[0] = 1.0
     verts: Float[Tensor, "vertices 3"]
     verts, _ = flame(shape=shape[torch.newaxis], expression=expression[torch.newaxis])
     verts = verts[0]
     verts = transform3d.transform_points(verts)
-    mesh: pv.PolyData = pv.PolyData.from_regular_faces(
-        verts.numpy(force=True), flame.faces
-    )
     mesh.point_data["displacement"] = (verts - neutral_verts).numpy(force=True)
     melon.io.save(cfg.output, mesh)
 
