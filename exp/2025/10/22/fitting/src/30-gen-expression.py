@@ -44,7 +44,7 @@ def main(cfg: Config) -> None:
         neutral_verts.numpy(force=True), flame.faces
     )
 
-    expression[0] = 1.0
+    expression[0] = 2.0
     verts: Float[Tensor, "vertices 3"]
     verts, _ = flame(shape=shape[torch.newaxis], expression=expression[torch.newaxis])
     verts = verts[0]
