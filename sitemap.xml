@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://liblaf.github.io/flame-pytorch/</loc>
+         <lastmod>2025-10-29</lastmod>
+    </url>
+    <url>
+         <loc>https://liblaf.github.io/flame-pytorch/reference/liblaf/flame_pytorch/</loc>
+         <lastmod>2025-10-29</lastmod>
+    </url>
+    <url>
+         <loc>https://liblaf.github.io/flame-pytorch/reference/liblaf/flame_pytorch/config/</loc>
+         <lastmod>2025-10-29</lastmod>
+    </url>
+    <url>
+         <loc>https://liblaf.github.io/flame-pytorch/reference/liblaf/flame_pytorch/flame/</loc>
+         <lastmod>2025-10-29</lastmod>
+    </url>
+    <url>
+         <loc>https://liblaf.github.io/flame-pytorch/reference/liblaf/flame_pytorch/upstream/</loc>
+         <lastmod>2025-10-29</lastmod>
+    </url>
+    <url>
+         <loc>https://liblaf.github.io/flame-pytorch/reference/liblaf/flame_pytorch/upstream/config/</loc>
+         <lastmod>2025-10-29</lastmod>
+    </url>
+    <url>
+         <loc>https://liblaf.github.io/flame-pytorch/reference/liblaf/flame_pytorch/upstream/flame/</loc>
+         <lastmod>2025-10-29</lastmod>
+    </url>
+</urlset>
