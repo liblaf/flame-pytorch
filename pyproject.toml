@@ -48,15 +48,15 @@ dynamic = ["version"]
 "Source Code" = "https://github.com/liblaf/flame-pytorch"
 
 [dependency-groups]
-build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 dev = [
   "icecream>=2,<3",
   "liblaf-cherries>=0.6,<0.7",
-  "liblaf-grapes>=6,<7",
+  "liblaf-grapes>=8,<9",
   "liblaf-melon>=0.8,<0.9",
   "pytorch3d==0.7.8+pt2.8.0cu129",
   "pyvista>=0.46,<0.47"
 ]
+build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
 docs = ["liblaf-mkdocs-preset>=0.2,<0.3", "mkdocs>=1,<2"]
 test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=9,<10"]
 
@@ -87,7 +87,7 @@ source = "vcs"
 extends = ".config/linters/pyrightconfig.json"
 ignore = ["src/liblaf/flame_pytorch/upstream"]
 
-[tool.pytest.ini_options]
+[tool.pytest]
 addopts = [
   "--doctest-modules",
   "--hypothesis-show-statistics",
@@ -96,6 +96,7 @@ addopts = [
   "--strict-config",
   "--strict-markers"
 ]
+strict = true
 testpaths = ["benches", "src", "tests"]
 
 [tool.ruff]

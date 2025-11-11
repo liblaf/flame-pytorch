@@ -44,13 +44,19 @@ def main(cfg: Config) -> None:
         neutral_verts.numpy(force=True), flame.faces
     )
 
-    expression[0] = 2.0
-    verts: Float[Tensor, "vertices 3"]
-    verts, _ = flame(shape=shape[torch.newaxis], expression=expression[torch.newaxis])
-    verts = verts[0]
-    verts = transform3d.transform_points(verts)
-    mesh.point_data["displacement"] = (verts - neutral_verts).numpy(force=True)
-    melon.io.save(cfg.output, mesh)
+    for expression_id in range(flame.config.expression_params):
+        expression = torch.zeros((flame.config.expression_params,), dtype=flame.dtype)
+        expression[expression_id] = 2.0
+        verts: Float[Tensor, "vertices 3"]
+        verts, _ = flame(
+            shape=shape[torch.newaxis], expression=expression[torch.newaxis]
+        )
+        verts = verts[0]
+        verts = transform3d.transform_points(verts)
+        mesh.point_data[f"expression-{expression_id:02d}"] = (
+            verts - neutral_verts
+        ).numpy(force=True)
+    melon.save(cfg.output, mesh)
 
 
 if __name__ == "__main__":
