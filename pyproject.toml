@@ -50,7 +50,7 @@ dynamic = ["version"]
 [dependency-groups]
 dev = [
   "icecream>=2,<3",
-  "liblaf-cherries>=0.6,<0.7",
+  "liblaf-cherries>=0.7,<0.8",
   "liblaf-grapes>=8,<9",
   "liblaf-melon>=0.8,<0.9",
   "pytorch3d==0.7.8+pt2.8.0cu129",
