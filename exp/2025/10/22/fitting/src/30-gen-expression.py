@@ -60,7 +60,7 @@ def main(cfg: Config) -> None:
         )
         verts = verts[0]
         verts = transform3d.transform_points(verts)
-        mesh.point_data[f"expression-{idx:03d}"] = (verts - neutral_verts).numpy(
+        mesh.point_data[f"Expression{idx:03d}"] = (verts - neutral_verts).numpy(
             force=True
         )
     melon.save(cfg.output, mesh)
