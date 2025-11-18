@@ -44,20 +44,27 @@ def main(cfg: Config) -> None:
         neutral_verts.numpy(force=True), flame.faces
     )
 
-    for expression_id in range(flame.config.expression_params):
-        expression = torch.zeros((flame.config.expression_params,), dtype=flame.dtype)
-        expression[expression_id] = 2.0
+    expressions: list[Float[Tensor, "vertices 3"]] = []
+    expression = torch.zeros((flame.config.expression_params,), dtype=flame.dtype)
+    expression[0] = 3.0
+    expression[2] = 3.0
+    expressions.append(expression.clone())
+    expression = torch.zeros((flame.config.expression_params,), dtype=flame.dtype)
+    expression[0] = -3.0
+    expression[2] = 3.0
+    expressions.append(expression.clone())
+    for idx, expression in enumerate(expressions):
         verts: Float[Tensor, "vertices 3"]
         verts, _ = flame(
             shape=shape[torch.newaxis], expression=expression[torch.newaxis]
         )
         verts = verts[0]
         verts = transform3d.transform_points(verts)
-        mesh.point_data[f"expression-{expression_id:02d}"] = (
-            verts - neutral_verts
-        ).numpy(force=True)
+        mesh.point_data[f"expression-{idx:03d}"] = (verts - neutral_verts).numpy(
+            force=True
+        )
     melon.save(cfg.output, mesh)
 
 
 if __name__ == "__main__":
-    cherries.run(main)
+    cherries.main(main)

@@ -1,3 +1,6 @@
+# Images
+*.png filter=lfs diff=lfs merge=lfs -text
+
 # numpy
 *.np.txt filter=lfs diff=lfs merge=lfs -text
 *.npy filter=lfs diff=lfs merge=lfs -text

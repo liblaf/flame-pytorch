@@ -49,7 +49,6 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
-  "icecream>=2,<3",
   "liblaf-cherries>=0.7,<0.8",
   "liblaf-grapes>=8,<9",
   "liblaf-melon>=0.8,<0.9",
