@@ -46,12 +46,12 @@ def main(cfg: Config) -> None:
 
     expressions: list[Float[Tensor, "vertices 3"]] = []
     expression = torch.zeros((flame.config.expression_params,), dtype=flame.dtype)
-    expression[0] = 3.0
-    expression[2] = 3.0
+    expression[0] = 2.0
+    expression[2] = 2.0
     expressions.append(expression.clone())
     expression = torch.zeros((flame.config.expression_params,), dtype=flame.dtype)
-    expression[0] = -3.0
-    expression[2] = 3.0
+    expression[0] = -2.0
+    expression[2] = 2.0
     expressions.append(expression.clone())
     for idx, expression in enumerate(expressions):
         verts: Float[Tensor, "vertices 3"]
