@@ -50,7 +50,7 @@ dynamic = ["version"]
 dev = [
   "liblaf-cherries>=0.7,<0.8",
   "liblaf-grapes>=8,<9",
-  "liblaf-melon>=0.9,<0.10",
+  "liblaf-melon>=1.1,<1.2",
   "pytorch3d==0.7.9+pt2.9.1cu128",
   "pyvista>=0.46,<0.47",
   "torch==2.9.1"
