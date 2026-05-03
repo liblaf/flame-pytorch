@@ -52,7 +52,7 @@ dev = [
   "liblaf-grapes>=8,<9",
   "liblaf-melon>=0.9,<0.10",
   "pytorch3d==0.7.9+pt2.9.1cu128",
-  "pyvista>=0.46,<0.47",
+  "pyvista>=0.48,<0.49",
   "torch==2.9.1"
 ]
 build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
