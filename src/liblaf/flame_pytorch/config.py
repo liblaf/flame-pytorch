@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import cast
 
 import pooch
 import pydantic
@@ -17,7 +18,9 @@ def _flame_model_pooch_factory() -> pooch.Pooch:
     )
 
 
-_flame_model_pooch: pooch.Pooch = wrapt.LazyObjectProxy(_flame_model_pooch_factory)  # pyright: ignore[reportAssignmentType]
+_flame_model_pooch: pooch.Pooch = cast(
+    "pooch.Pooch", wrapt.LazyObjectProxy(_flame_model_pooch_factory)
+)
 
 
 def _default_static_landmark_embedding_path() -> Path:

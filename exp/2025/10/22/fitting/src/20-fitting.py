@@ -1,247 +1,91 @@
+import logging
 from pathlib import Path
 
-import attrs
 import numpy as np
 import pyvista as pv
 import torch
-import trimesh as tm
 from jaxtyping import Float, Integer
-from loguru import logger
-from pytorch3d.loss import chamfer_distance
-from pytorch3d.ops import sample_points_from_meshes
 from pytorch3d.structures import Meshes
-from pytorch3d.transforms import Transform3d
 from torch import Tensor
 
 from liblaf import cherries, melon
-from liblaf.flame_pytorch import FLAME, FlameConfig
+from liblaf.flame_pytorch import FLAME, FitScanResult, FlameConfig, fit_scan
 
-
-@attrs.define
-class Loss:
-    chamfer: float = 1.0
-    chamfer_normals: float = 0.0
-    landmarks: float = 1.0
-    regularization: float = 1e-3
-
-    def __call__(
-        self,
-        shape: Float[Tensor, " shape"],
-        source: Meshes,
-        target: Meshes,
-        source_landmarks: Float[Tensor, "batch landmarks 3"],
-        target_landmarks: Float[Tensor, "batch landmarks 3"],
-    ) -> Float[Tensor, ""]:
-        loss_chamfer: Float[Tensor, ""]
-        loss_chamfer_normals: Float[Tensor, ""]
-        loss_chamfer, loss_chamfer_normals = self.loss_chamfer(source, target)
-        loss_landmarks: Float[Tensor, ""] = self.loss_landmarks(
-            source_landmarks, target_landmarks
-        )
-        loss_regularization: Float[Tensor, ""] = self.loss_regularization(shape)
-        loss: Float[Tensor, ""] = (
-            loss_chamfer + loss_chamfer_normals + loss_landmarks + loss_regularization
-        )
-        cherries.log_metrics(
-            {
-                "loss": {
-                    "chamfer": loss_chamfer.item(),
-                    "chamfer_normals": loss_chamfer_normals.item(),
-                    "landmarks": loss_landmarks.item(),
-                    "regularization": loss_regularization.item(),
-                    "total": loss.item(),
-                }
-            }
-        )
-        return loss
-
-    def loss_chamfer(
-        self, source: Meshes, target: Meshes
-    ) -> tuple[Float[Tensor, ""], Float[Tensor, ""]]:
-        source_points: Float[Tensor, "batch samples 3"]
-        source_normals: Float[Tensor, "batch samples 3"]
-        source_points, source_normals = sample_points_from_meshes(  # pyright: ignore[reportAssignmentType]
-            source, return_normals=True
-        )
-        target_points: Float[Tensor, "batch samples 3"]
-        target_normals: Float[Tensor, "batch samples 3"]
-        target_points, target_normals = sample_points_from_meshes(  # pyright: ignore[reportAssignmentType]
-            target, return_normals=True
-        )
-        chamfer: Float[Tensor, ""]
-        chamfer_normals: Float[Tensor, ""]
-        chamfer, chamfer_normals = chamfer_distance(
-            target_points,
-            source_points,
-            x_normals=source_normals,
-            y_normals=target_normals,
-            single_directional=True,
-        )  # pyright: ignore[reportAssignmentType]
-        return self.chamfer * chamfer, self.chamfer_normals * chamfer_normals
-
-    def loss_landmarks(
-        self,
-        source_landmarks: Float[Tensor, "batch landmarks 3"],
-        target_landmarks: Float[Tensor, "batch landmarks 3"],
-    ) -> Float[Tensor, ""]:
-        loss_landmarks: Float[Tensor, ""] = torch.mean(
-            torch.sum(torch.square(source_landmarks - target_landmarks), dim=-1)
-        )
-        return self.landmarks * loss_landmarks
-
-    def loss_regularization(self, shape: Float[Tensor, " shape"]) -> Float[Tensor, ""]:
-        regularization: Float[Tensor, ""] = torch.sum(shape**2)
-        return self.regularization * regularization
-
-
-def landmark_indices() -> Integer[Tensor, " landmarks"]:
-    return torch.as_tensor([9, 28, 31, 32, 34, 36, 37, 40, 43, 46, 49, 52, 58, 65]) - 1
-
-
-def fit_transform(
-    flame: FLAME, target_landmarks: Float[Tensor, "landmarks 3"]
-) -> Float[Tensor, "4 4"]:
-    flame.eval()
-    source_landmarks: Float[Tensor, "landmarks 3"]
-    _, source_landmarks = flame()
-    source_landmarks = source_landmarks[0, landmark_indices(), :]
-    matrix: Float[np.ndarray, "4 4"]
-    cost: float
-    matrix, _, cost = tm.registration.procrustes(
-        source_landmarks.numpy(force=True), target_landmarks.numpy(force=True)
-    )
-    logger.info("Procrustes cost: {}", cost)
-    return torch.as_tensor(matrix, dtype=torch.float32)
-
-
-def fit_shape(
-    flame: FLAME,
-    loss_fn: Loss,
-    target: Meshes,
-    target_landmarks: Float[Tensor, "batch landmarks 3"],
-    transform: Float[Tensor, "#batch 4 4"],
-    shape: Float[Tensor, "batch shape"] | None = None,
-    *,
-    fit_transform: bool = True,
-) -> tuple[Float[Tensor, "#batch 4 4"], Float[Tensor, "batch shape"]]:
-    device: torch.device = torch.get_default_device()
-    flame.eval()
-    faces: Integer[Tensor, "#batch faces 3"] = torch.as_tensor(
-        flame.faces, dtype=torch.int32
-    )[torch.newaxis]
-    if shape is None:
-        shape = torch.zeros(
-            (flame.config.batch_size, flame.config.shape_params), requires_grad=True
-        )
-    transform = torch.tensor(transform, dtype=torch.float32, requires_grad=True)
-    params: list[Tensor] = [shape]
-    if fit_transform:
-        params.append(transform)
-    optimizer = torch.optim.LBFGS(params)
-
-    def closure() -> Float[Tensor, ""]:
-        optimizer.zero_grad()
-        verts: Float[Tensor, "batch vertices 3"]
-        landmarks: Float[Tensor, "batch landmarks 3"]
-        verts, landmarks = flame(shape=shape)
-        landmarks = landmarks[:, landmark_indices(), :]
-        transform3d: Transform3d = Transform3d(matrix=transform.T).to(device)
-        verts = transform3d.transform_points(verts)
-        landmarks = transform3d.transform_points(landmarks)
-        source: Meshes = Meshes(verts, faces).to(device)
-        loss: Float[Tensor, ""] = loss_fn(
-            shape=shape,
-            source=source,
-            target=target,
-            source_landmarks=landmarks,
-            target_landmarks=target_landmarks,
-        )
-        loss.backward()
-        return loss
-
-    for step in range(20):
-        loss: Float[Tensor, ""] = optimizer.step(closure)
-        cherries.log_metric("loss", loss, step=step)
-        ic(shape[0, :5], transform)
-    return shape, transform
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Config(cherries.BaseConfig):
     target: Path = cherries.input("00-target.vtp")
-
     output: Path = cherries.output("20-shape.ply")
-    output_shape: Path = cherries.output("20-shape.np.txt")
-    output_transform: Path = cherries.output("20-transform.np.txt")
-    target_mask: Path = cherries.output("20-target-mask.ply")
+    output_params: Path = cherries.output("20-shape.npz")
+
+
+FACE_GROUPS: list[str] = [
+    "Chin",
+    "EyelidBottom",
+    "EyelidOuterBottom",
+    "EyelidOuterTop",
+    "EyelidTop",
+    "Face",
+    "HeadBack",
+    "LipBottom",
+    "LipOuterBottom",
+    "LipOuterTop",
+    "LipTop",
+]
+LANDMARK_INDICES: Integer[Tensor, "L 3"] = (
+    torch.tensor(
+        [9, 28, 31, 32, 34, 36, 37, 40, 43, 46, 49, 52, 58, 65], dtype=torch.int32
+    )
+    - 1
+)
+
+
+def prepare_target(target: pv.PolyData) -> Meshes:
+    device: torch.device = torch.get_default_device()
+    target: pv.PolyData = melon.tri.extract_groups(target, FACE_GROUPS)
+    verts: Float[Tensor, "V 3"] = torch.tensor(
+        target.points, dtype=torch.get_default_dtype()
+    )
+    faces: Integer[Tensor, "F 3"] = torch.tensor(
+        target.regular_faces, dtype=torch.int32
+    )
+    target: Meshes = Meshes([verts], [faces]).to(device)
+    return target
 
 
 def main(cfg: Config) -> None:
     if torch.cuda.is_available():
         torch.set_default_device("cuda")
-    device: torch.device = torch.get_default_device()
     target_pv: pv.PolyData = melon.io.load_polydata(cfg.target)
-    groups_exclude: list[str] = [
-        "Ear",
-        "EarNeckBack",
-        "EarSocket EyeSocketTop",
-        "HeadBack",
-        "LipInnerBottom",
-        "LipInnerTop",
-        "MouthSocketBottom",
-        "MouthSocketTop",
-        "NeckBack",
-        "NeckFront",
-    ]
-    # selection: Integer[np.ndarray, " selection"] = melon.tri.select_groups(
-    #     target_pv, groups_exclude
-    # )
-    # target_pv.cell_data["fitting-mask"] = np.zeros((target_pv.n_cells,), dtype=bool)
-    # target_pv.cell_data["fitting-mask"][selection] = True
-    target_pv = melon.tri.extract_groups(target_pv, groups_exclude, invert=True)
-    melon.io.save(cfg.target_mask, target_pv)
-    target_pv.triangulate(inplace=True)
-    target: Meshes = Meshes(
-        verts=torch.as_tensor(target_pv.points, dtype=torch.float32)[torch.newaxis],
-        faces=torch.as_tensor(target_pv.regular_faces, dtype=torch.int32)[
-            torch.newaxis
-        ],
-    ).to(device)
-    target_landmarks: Float[Tensor, "landmarks 3"] = torch.as_tensor(
-        melon.io.load_landmarks(cfg.target)
+    target_landmarks: Float[Tensor, "L 3"] = torch.tensor(
+        melon.io.load_landmarks(cfg.target), dtype=torch.get_default_dtype()
     )
-
+    target: Meshes = prepare_target(target_pv)
     flame = FLAME(FlameConfig(batch_size=1))
-    transform: Float[Tensor, "4 4"] = fit_transform(flame, target_landmarks)
-    ic(transform)
-
-    shape: Float[Tensor, "batch shape"]
-    shape, transform = fit_shape(
-        flame,
-        loss_fn=Loss(),
+    result: FitScanResult = fit_scan(
+        flame=flame,
         target=target,
-        target_landmarks=target_landmarks,
-        transform=transform,
-        fit_transform=False,
+        landmarks=target_landmarks,
+        landmark_indices=LANDMARK_INDICES,
     )
-    shape, transform = fit_shape(
-        flame,
-        loss_fn=Loss(landmarks=1e-3),
-        target=target,
-        target_landmarks=target_landmarks,
-        transform=transform,
-        shape=shape,
-        fit_transform=False,
+    matrix: Float[Tensor, "4 4"] = result.transform.get_matrix()[0].mT
+    np.savez_compressed(
+        cfg.output_params,
+        allow_pickle=False,
+        transform=matrix.numpy(force=True),
+        shape=result.shape.numpy(force=True),
+        expression=result.expression.numpy(force=True),
+        pose=result.pose.numpy(force=True),
     )
-    np.savetxt(cfg.output_shape, shape[0].numpy(force=True))
-    np.savetxt(cfg.output_transform, transform.numpy(force=True))
-    transform3d: Transform3d = Transform3d(matrix=transform.T).to(device)
-    verts: Float[Tensor, "batch vertices 3"]
-    verts, _ = flame(shape=shape)
-    verts = transform3d.transform_points(verts)
-    result: pv.PolyData = pv.PolyData.from_regular_faces(
-        verts[0].numpy(force=True), flame.faces
+    verts, _ = flame(
+        shape=result.shape[torch.newaxis],
+        expression=result.expression[torch.newaxis],
+        pose=result.pose[torch.newaxis],
     )
-    melon.io.save(cfg.output, result)
+    verts: Float[Tensor, "B V 3"] = result.transform.transform_points(verts)
+    result: pv.PolyData = pv.make_tri_mesh(verts[0].numpy(force=True), flame.faces)
+    melon.save(result, cfg.output)
 
 
 if __name__ == "__main__":

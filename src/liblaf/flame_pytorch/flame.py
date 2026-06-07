@@ -16,10 +16,9 @@ class FLAME(_FLAME):
             config = FlameConfig()
         super().__init__(config)
         self.config = config
-        if torch.cuda.is_available():
-            self.cuda()
+        self.to(torch.get_default_device())
 
-    def forward(  # pyright: ignore[reportIncompatibleMethodOverride]
+    def forward(
         self,
         shape: Float[Tensor, "#batch shape"] | None = None,
         expression: Float[Tensor, "#batch expression"] | None = None,
@@ -27,21 +26,21 @@ class FLAME(_FLAME):
         neck_pose: Float[Tensor, "#batch 3"] | None = None,
         eye_pose: Float[Tensor, "#batch 6"] | None = None,
         translation: Float[Tensor, "#batch 3"] | None = None,
-    ) -> tuple[Float[Tensor, "#batch vertices 3"], Float[Tensor, "#batch landmarks 3"]]:
+    ) -> tuple[Float[Tensor, "#batch vertices 3"], Float[Tensor, "#batch landmarks 3"]]:  # ty:ignore[invalid-method-override]
         if shape is None:
-            shape = torch.zeros(
+            shape: Float[Tensor, "#batch shape"] = torch.zeros(
                 (self.config.batch_size, self.config.shape_params),
                 device=self.shapedirs.device,
                 requires_grad=False,
             )
         if expression is None:
-            expression = torch.zeros(
+            expression: Float[Tensor, "#batch expression"] = torch.zeros(
                 (self.config.batch_size, self.config.expression_params),
                 device=self.shapedirs.device,
                 requires_grad=False,
             )
         if pose is None:
-            pose = torch.zeros(
+            pose: Float[Tensor, "#batch pose"] = torch.zeros(
                 (self.config.batch_size, self.config.pose_params),
                 device=self.shapedirs.device,
                 requires_grad=False,

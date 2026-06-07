@@ -12,8 +12,8 @@ from liblaf.flame_pytorch import FLAME, FlameConfig
 
 
 class Config(cherries.BaseConfig):
-    shape: Path = cherries.input("20-shape.np.txt")
-    transform: Path = cherries.input("20-transform.np.txt")
+    shape: Path = cherries.input("20-shape.npz")
+    transform: Path = cherries.input("20-transform.npz")
 
     output: Path = cherries.output("30-expression.vtp")
 
@@ -23,18 +23,18 @@ def main(cfg: Config) -> None:
         torch.set_default_device("cuda")
     device: torch.device = torch.get_default_device()
     flame = FLAME(FlameConfig(batch_size=1))
-    shape: Float[Tensor, " shape"] = torch.as_tensor(
-        np.loadtxt(cfg.shape), dtype=flame.dtype
+    shape: Float[Tensor, " shape"] = torch.tensor(
+        np.load(cfg.shape)["shape"], dtype=flame.dtype
     )
-    transform: Float[Tensor, "4 4"] = torch.as_tensor(
-        np.loadtxt(cfg.transform), dtype=flame.dtype
+    transform: Float[Tensor, "4 4"] = torch.tensor(
+        np.load(cfg.transform)["transform"], dtype=flame.dtype
     )
     transform3d: Transform3d = Transform3d(matrix=transform.T).to(device)
 
     expression: Float[Tensor, " expression"] = torch.zeros(
         (flame.config.expression_params,), dtype=flame.dtype
     )
-    neutral_verts: Float[Tensor, "vertices 3"]
+    neutral_verts: Float[Tensor, "V 3"]
     neutral_verts, _ = flame(
         shape=shape[torch.newaxis], expression=expression[torch.newaxis]
     )
@@ -44,7 +44,7 @@ def main(cfg: Config) -> None:
         neutral_verts.numpy(force=True), flame.faces
     )
 
-    expressions: list[Float[Tensor, "vertices 3"]] = []
+    expressions: list[Float[Tensor, "V 3"]] = []
     expression = torch.zeros((flame.config.expression_params,), dtype=flame.dtype)
     expression[0] = 2.0
     expression[2] = 2.0
@@ -71,7 +71,7 @@ def main(cfg: Config) -> None:
         mesh.point_data[f"Expression{idx:03d}"] = (verts - neutral_verts).numpy(
             force=True
         )
-    melon.save(cfg.output, mesh)
+    melon.save(mesh, cfg.output)
 
 
 if __name__ == "__main__":

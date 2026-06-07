@@ -22,18 +22,19 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Typing :: Typed"
 ]
 dependencies = [
-  "attrs>=25,<26",
-  "environs>=14,<15",
-  "jaxtyping>=0.3,<0.4",
+  "attrs>=25",
+  "environs>=14",
+  "jaxtyping>=0.3",
   "lazy-loader>=0.4",
-  "numpy>=2,<3",
-  "pooch>=1,<2",
-  "smplx>=0.1,<0.2",
-  "torch>=2,<3",
-  "wrapt>=2,<3"
+  "numpy>=2",
+  "pooch>=1",
+  "smplx>=0.1",
+  "torch>=2",
+  "wrapt>=2"
 ]
 dynamic = ["version"]
 
@@ -48,16 +49,27 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
-  "liblaf-cherries>=0.7,<0.8",
-  "liblaf-grapes>=8,<9",
-  "liblaf-melon>=0.9,<0.10",
-  "pytorch3d==0.7.9+pt2.9.1cu128",
-  "pyvista>=0.46,<0.47",
-  "torch==2.9.1"
+  "icecream>=2.2.0",
+  "liblaf-cherries>=3",
+  "liblaf-grapes>=8",
+  "liblaf-melon>=1.1.3",
+  "loguru>=0.7.3",
+  "pytorch3d==0.7.9+d9839a9pt2.12.0cu132",
+  "pyvista>=0.48",
+  "torch==2.12.0"
 ]
-build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
-docs = ["liblaf-mkdocs-preset>=0.3,<0.4", "mkdocs>=1,<2"]
-test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=9,<10"]
+build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
+docs = [
+  "griffe-fieldz>=0.5",
+  "griffe-inherited-docstrings>=1",
+  "griffe-pydantic>=1",
+  "griffe-warnings-deprecated>=1",
+  "mkdocstrings[python]>=1",
+  "zensical>=0.0.44"
+]
+lint = ["import-linter[ui]>=2", "ruff>=0.15", "ty>=0.0.44"]
+nox = ["liblaf-nox-recipes>=0.1", "nox>=2026", "nox-uv>=0.7"]
+test = ["hypothesis>=6", "pytest>=9", "pytest-cov>=7", "pytest-randomly>=4"]
 
 [build-system]
 requires = ["hatch-vcs", "hatchling"]
@@ -82,18 +94,23 @@ packages = ["src/liblaf"]
 [tool.hatch.version]
 source = "vcs"
 
-[tool.pyright]
-extends = ".config/linters/pyrightconfig.json"
-ignore = ["src/liblaf/flame_pytorch/upstream"]
+[tool.importlinter]
+root_package = "liblaf.flame_pytorch"
+
+[[tool.importlinter.contracts]]
+ancestors = ["liblaf.flame_pytorch"]
+name = "Acyclic siblings"
+type = "acyclic_siblings"
 
 [tool.pytest]
 addopts = [
   "--doctest-modules",
-  "--hypothesis-show-statistics",
   "--import-mode=importlib",
+  "--junitxml=junit.xml",
   "--showlocals"
 ]
 consider_namespace_packages = true
+junit_family = "legacy"
 strict = true
 testpaths = ["benches", "src", "tests"]
 
@@ -104,13 +121,16 @@ extend-exclude = ["src/liblaf/flame_pytorch/upstream"]
 [tool.ruff.lint]
 ignore = ["F722"]
 
+[tool.ty.src]
+exclude = ["src/liblaf/flame_pytorch/upstream"]
+
 [tool.uv]
 default-groups = "all"
-index-strategy = "unsafe-best-match"
 
 [[tool.uv.index]]
 name = "miropsota"
 url = "https://miropsota.github.io/torch_packages_builder/"
 
 [tool.uv.sources]
+liblaf-melon = { editable = true, path = "../melon" }
 pytorch3d.index = "miropsota"
