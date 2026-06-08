@@ -7,7 +7,7 @@ from jaxtyping import Float
 from torch import Tensor
 
 from liblaf import grapes, melon
-from liblaf.flame_pytorch import FLAME
+from liblaf.flame import FLAME
 
 
 def main() -> None:

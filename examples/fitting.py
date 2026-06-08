@@ -7,7 +7,7 @@ from pytorch3d.structures import Meshes
 from torch import Tensor
 
 from liblaf import grapes
-from liblaf.flame_pytorch import FLAME, FlameConfig
+from liblaf.flame import FLAME, FlameConfig
 
 
 def fitting(flame: FLAME, target: Meshes) -> Float[Tensor, "batch shape"]:

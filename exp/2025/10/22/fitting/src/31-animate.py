@@ -8,7 +8,7 @@ from pytorch3d.transforms import Transform3d
 from torch import Tensor
 
 from liblaf import cherries, melon
-from liblaf.flame_pytorch import FLAME, FlameConfig
+from liblaf.flame import FLAME, FlameConfig
 
 
 class Config(cherries.BaseConfig):

@@ -6,7 +6,7 @@ from jaxtyping import Float, Integer
 from torch import Tensor
 
 from liblaf import cherries, melon
-from liblaf.flame_pytorch import FLAME, FlameConfig
+from liblaf.flame import FLAME, FlameConfig
 
 
 class Config(cherries.BaseConfig):

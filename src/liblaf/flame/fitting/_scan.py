@@ -13,7 +13,7 @@ from torch import Tensor
 from torch.optim import LBFGS, Optimizer
 
 from liblaf import cherries
-from liblaf.flame_pytorch.flame import FLAME
+from liblaf.flame.flame import FLAME
 
 logger: logging.Logger = logging.getLogger(__name__)
 

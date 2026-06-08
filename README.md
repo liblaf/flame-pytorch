@@ -1,1 +1,1 @@
-# flame-pytorch
+# flame

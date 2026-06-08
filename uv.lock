@@ -670,9 +670,9 @@ nvtx = [
 name = "cycler"
 version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a9/95/a3dbbb5028f35eafb79008e7522a75244477d2838f38cbb722248dabc2a8/cycler-0.12.1.tar.gz", hash = "sha256:88bb128f02ba341da8ef447245a9e138fae777f6a23943da4540077d3601eb1c" }
+sdist = { url = "https://files.pythonhosted.org/packages/a9/95/a3dbbb5028f35eafb79008e7522a75244477d2838f38cbb722248dabc2a8/cycler-0.12.1.tar.gz", hash = "sha256:88bb128f02ba341da8ef447245a9e138fae777f6a23943da4540077d3601eb1c", size = 7615, upload-time = "2023-10-07T05:32:18.335Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30" },
+    { url = "https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30", size = 8321, upload-time = "2023-10-07T05:32:16.783Z" },
 ]
 
 [[package]]
@@ -1752,7 +1752,7 @@ wheels = [
 ]
 
 [[package]]
-name = "liblaf-flame-pytorch"
+name = "liblaf-flame"
 source = { editable = "." }
 dependencies = [
     { name = "attrs" },
@@ -1761,6 +1761,7 @@ dependencies = [
     { name = "lazy-loader" },
     { name = "numpy" },
     { name = "pooch" },
+    { name = "pytorch3d" },
     { name = "smplx" },
     { name = "torch" },
     { name = "wrapt" },
@@ -1815,6 +1816,7 @@ requires-dist = [
     { name = "lazy-loader", specifier = ">=0.4" },
     { name = "numpy", specifier = ">=2" },
     { name = "pooch", specifier = ">=1" },
+    { name = "pytorch3d", specifier = ">=0.7.9", index = "https://miropsota.github.io/torch_packages_builder/" },
     { name = "smplx", specifier = ">=0.1" },
     { name = "torch", specifier = ">=2" },
     { name = "wrapt", specifier = ">=2" },
@@ -1830,7 +1832,7 @@ dev = [
     { name = "icecream", specifier = ">=2.2.0" },
     { name = "liblaf-cherries", specifier = ">=3" },
     { name = "liblaf-grapes", specifier = ">=8" },
-    { name = "liblaf-melon", editable = "../melon" },
+    { name = "liblaf-melon", specifier = ">=1.1.3" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "pytorch3d", specifier = "==0.7.9+d9839a9pt2.12.0cu132", index = "https://miropsota.github.io/torch_packages_builder/" },
     { name = "pyvista", specifier = ">=0.48" },
@@ -1912,10 +1914,12 @@ wheels = [
 
 [[package]]
 name = "liblaf-melon"
-source = { editable = "../melon" }
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "cyclopts" },
+    { name = "cytoolz" },
     { name = "einops" },
     { name = "h5py" },
     { name = "jaxtyping" },
@@ -1937,70 +1941,9 @@ dependencies = [
     { name = "trimesh", extra = ["easy"] },
     { name = "warp-lang" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "attrs", specifier = ">=25" },
-    { name = "cyclopts", specifier = ">=4" },
-    { name = "einops", specifier = ">=0.8" },
-    { name = "h5py", specifier = ">=3.16.0" },
-    { name = "jaxtyping", specifier = ">=0.3.10" },
-    { name = "jinja2", specifier = ">=3" },
-    { name = "joblib", specifier = ">=1.5.3" },
-    { name = "liblaf-logging", specifier = ">=0.1.2" },
-    { name = "meshio", specifier = ">=5.3.5" },
-    { name = "more-itertools", specifier = ">=10" },
-    { name = "numpy", specifier = ">=2.4" },
-    { name = "potpourri3d", specifier = ">=1.3" },
-    { name = "pydicom", specifier = ">=3" },
-    { name = "pymeshfix", specifier = ">=0.18" },
-    { name = "pytetwild", specifier = ">=0.3.0" },
-    { name = "pyvista", specifier = ">=0.47" },
-    { name = "rich", specifier = ">=14" },
-    { name = "scipy", specifier = ">=1.17" },
-    { name = "toolz", specifier = ">=1.1" },
-    { name = "torch", specifier = ">=2.12.0" },
-    { name = "trimesh", extras = ["easy"], specifier = ">=4.11" },
-    { name = "warp-lang", specifier = ">=1.14" },
-]
-
-[package.metadata.requires-dev]
-build = [
-    { name = "check-wheel-contents", specifier = ">=0.6" },
-    { name = "hatch", specifier = ">=1" },
-    { name = "twine", specifier = ">=6" },
-]
-dev = [
-    { name = "icecream", specifier = ">=2.2.0" },
-    { name = "liblaf-cherries", specifier = ">=3" },
-]
-docs = [
-    { name = "griffe-fieldz", specifier = ">=0.5" },
-    { name = "griffe-inherited-docstrings", specifier = ">=1" },
-    { name = "griffe-pydantic", specifier = ">=1" },
-    { name = "griffe-warnings-deprecated", specifier = ">=1" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=1" },
-    { name = "zensical", specifier = ">=0.0.44" },
-]
-lint = [
-    { name = "import-linter", extras = ["ui"], specifier = ">=2" },
-    { name = "ruff", specifier = ">=0.15" },
-    { name = "ty", specifier = ">=0.0.44" },
-]
-nox = [
-    { name = "liblaf-nox-recipes", specifier = ">=0.1" },
-    { name = "nox", specifier = ">=2026" },
-    { name = "nox-uv", specifier = ">=0.7" },
-]
-test = [
-    { name = "hypothesis", specifier = ">=6" },
-    { name = "pytest", specifier = ">=9" },
-    { name = "pytest-cov", specifier = ">=7" },
-    { name = "pytest-randomly", specifier = ">=4" },
-]
-typing = [
-    { name = "scipy-stubs", specifier = ">=1" },
-    { name = "toolz-stubs", specifier = ">=0.4.1" },
+sdist = { url = "https://files.pythonhosted.org/packages/4d/7f/a6facc05cf2335952e6f0b18fe2d098e18843e91ab927527368cacea9b77/liblaf_melon-1.2.0.tar.gz", hash = "sha256:91f78e8c0899765c768dc4815684ff393681404c6c56ebd62f2dbf6cccf7bd57", size = 22323, upload-time = "2026-06-08T08:40:39.984Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f1/7e/4c52058b5d557f0671ca844d2f8cb476f3b8cc35648da7c1fa4a4fb261e1/liblaf_melon-1.2.0-py3-none-any.whl", hash = "sha256:2c2ce52d985e87da1e703067f107b89634002113d9f2e0fb8dcbf6e59cfa21c6", size = 42180, upload-time = "2026-06-08T08:40:38.667Z" },
 ]
 
 [[package]]

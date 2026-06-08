@@ -2,7 +2,7 @@
 # ref: <https://packaging.python.org/en/latest/specifications/pyproject-toml/>
 
 [project]
-name = "liblaf-flame-pytorch"
+name = "liblaf-flame"
 description = ""
 readme = "README.md"
 requires-python = ">=3.12"
@@ -32,6 +32,7 @@ dependencies = [
   "lazy-loader>=0.4",
   "numpy>=2",
   "pooch>=1",
+  "pytorch3d>=0.7.9",
   "smplx>=0.1",
   "torch>=2",
   "wrapt>=2"
@@ -39,13 +40,13 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-"Changelog" = "https://github.com/liblaf/flame-pytorch/blob/main/CHANGELOG.md"
-"Documentation" = "https://liblaf.github.io/flame-pytorch/"
-"Funding" = "https://github.com/liblaf/flame-pytorch?sponsor=1"
-"Homepage" = "https://github.com/liblaf/flame-pytorch"
-"Issue Tracker" = "https://github.com/liblaf/flame-pytorch/issues"
-"Release Notes" = "https://github.com/liblaf/flame-pytorch/releases"
-"Source Code" = "https://github.com/liblaf/flame-pytorch"
+"Changelog" = "https://github.com/liblaf/flame/blob/main/CHANGELOG.md"
+"Documentation" = "https://liblaf.github.io/flame/"
+"Funding" = "https://github.com/liblaf/flame?sponsor=1"
+"Homepage" = "https://github.com/liblaf/flame"
+"Issue Tracker" = "https://github.com/liblaf/flame/issues"
+"Release Notes" = "https://github.com/liblaf/flame/releases"
+"Source Code" = "https://github.com/liblaf/flame"
 
 [dependency-groups]
 dev = [
@@ -83,7 +84,7 @@ branch = true
 source = ["src"]
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/liblaf/flame_pytorch/_version.py"
+version-file = "src/liblaf/flame/_version.py"
 
 [tool.hatch.build.targets.sdist]
 only-include = ["src"]
@@ -95,10 +96,10 @@ packages = ["src/liblaf"]
 source = "vcs"
 
 [tool.importlinter]
-root_package = "liblaf.flame_pytorch"
+root_package = "liblaf.flame"
 
 [[tool.importlinter.contracts]]
-ancestors = ["liblaf.flame_pytorch"]
+ancestors = ["liblaf.flame"]
 name = "Acyclic siblings"
 type = "acyclic_siblings"
 
@@ -116,13 +117,13 @@ testpaths = ["benches", "src", "tests"]
 
 [tool.ruff]
 extend = ".config/linters/.ruff.toml"
-extend-exclude = ["src/liblaf/flame_pytorch/upstream"]
+extend-exclude = ["src/liblaf/flame/upstream"]
 
 [tool.ruff.lint]
 ignore = ["F722"]
 
 [tool.ty.src]
-exclude = ["src/liblaf/flame_pytorch/upstream"]
+exclude = ["src/liblaf/flame/upstream"]
 
 [tool.uv]
 default-groups = "all"
@@ -132,5 +133,4 @@ name = "miropsota"
 url = "https://miropsota.github.io/torch_packages_builder/"
 
 [tool.uv.sources]
-liblaf-melon = { editable = true, path = "../melon" }
 pytorch3d.index = "miropsota"

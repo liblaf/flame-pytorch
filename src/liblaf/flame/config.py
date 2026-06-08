@@ -9,7 +9,7 @@ from environs import env
 
 def _flame_model_pooch_factory() -> pooch.Pooch:
     return pooch.create(
-        pooch.os_cache("liblaf/flame-pytorch"),
+        pooch.os_cache("liblaf/flame"),
         "https://github.com/soubhiksanyal/RingNet/raw/master/flame_model/",
         registry={
             "flame_dynamic_embedding.npy": "sha256:fd046a4740f5e6837e65622d0e050273bb71bbcb1ad6ab322474013a2a23de37",

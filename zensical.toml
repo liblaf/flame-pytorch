@@ -2,7 +2,7 @@
 
 [project]
 # Basics
-site_name = "Flame PyTorch"
+site_name = "Flame"
 site_url = "__SITE_URL__"
 site_description = ""
 site_author = "liblaf"
@@ -10,20 +10,21 @@ site_author = "liblaf"
 nav = [
   { "Home" = "README.md" },
   { "API Reference" = [
-    { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> flame_pytorch" = [
-      "reference/liblaf/flame_pytorch/README.md",
-      "reference/liblaf/flame_pytorch/config.md",
-      "reference/liblaf/flame_pytorch/flame.md",
+    { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> flame" = [
+      "reference/liblaf/flame/README.md",
+      "reference/liblaf/flame/config.md",
+      "reference/liblaf/flame/fitting/README.md",
+      "reference/liblaf/flame/flame.md",
       { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> upstream" = [
-        "reference/liblaf/flame_pytorch/upstream/README.md",
-        "reference/liblaf/flame_pytorch/upstream/config.md",
-        "reference/liblaf/flame_pytorch/upstream/flame.md"
+        "reference/liblaf/flame/upstream/README.md",
+        "reference/liblaf/flame/upstream/config.md",
+        "reference/liblaf/flame/upstream/flame.md"
       ] }
     ] }
   ] }
 ]
 # Repository
-repo_url = "https://github.com/liblaf/flame-pytorch"
+repo_url = "https://github.com/liblaf/flame"
 edit_uri = "edit/main/docs/"
 
 # ref: <https://zensical.org/docs/setup/extensions/#default-configuration>

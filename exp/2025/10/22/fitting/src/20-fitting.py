@@ -9,7 +9,7 @@ from pytorch3d.structures import Meshes
 from torch import Tensor
 
 from liblaf import cherries, melon
-from liblaf.flame_pytorch import FLAME, FitScanResult, FlameConfig, fit_scan
+from liblaf.flame import FLAME, FitScanResult, FlameConfig, fit_scan
 
 logger: logging.Logger = logging.getLogger(__name__)
 
