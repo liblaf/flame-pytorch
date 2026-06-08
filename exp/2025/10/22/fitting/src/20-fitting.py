@@ -16,8 +16,8 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 class Config(cherries.BaseConfig):
     target: Path = cherries.input("00-target.vtp")
-    output: Path = cherries.output("20-shape.ply")
-    output_params: Path = cherries.output("20-shape.npz")
+    output: Path = cherries.output("20-fitting.ply")
+    output_params: Path = cherries.output("20-params.npz")
 
 
 FACE_GROUPS: list[str] = [
