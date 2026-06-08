@@ -20,27 +20,27 @@ class FLAME(_FLAME):
 
     def forward(
         self,
-        shape: Float[Tensor, "#batch shape"] | None = None,
-        expression: Float[Tensor, "#batch expression"] | None = None,
-        pose: Float[Tensor, "#batch pose"] | None = None,
-        neck_pose: Float[Tensor, "#batch 3"] | None = None,
-        eye_pose: Float[Tensor, "#batch 6"] | None = None,
-        translation: Float[Tensor, "#batch 3"] | None = None,
-    ) -> tuple[Float[Tensor, "#batch vertices 3"], Float[Tensor, "#batch landmarks 3"]]:  # ty:ignore[invalid-method-override]
+        shape: Float[Tensor, "batch shape"] | None = None,
+        expression: Float[Tensor, "batch expression"] | None = None,
+        pose: Float[Tensor, "batch pose"] | None = None,
+        neck_pose: Float[Tensor, "batch 3"] | None = None,
+        eye_pose: Float[Tensor, "batch 6"] | None = None,
+        translation: Float[Tensor, "batch 3"] | None = None,
+    ) -> tuple[Float[Tensor, "batch vertices 3"], Float[Tensor, "batch landmarks 3"]]:  # ty:ignore[invalid-method-override]
         if shape is None:
-            shape: Float[Tensor, "#batch shape"] = torch.zeros(
+            shape: Float[Tensor, "batch shape"] = torch.zeros(
                 (self.config.batch_size, self.config.shape_params),
                 device=self.shapedirs.device,
                 requires_grad=False,
             )
         if expression is None:
-            expression: Float[Tensor, "#batch expression"] = torch.zeros(
+            expression: Float[Tensor, "batch expression"] = torch.zeros(
                 (self.config.batch_size, self.config.expression_params),
                 device=self.shapedirs.device,
                 requires_grad=False,
             )
         if pose is None:
-            pose: Float[Tensor, "#batch pose"] = torch.zeros(
+            pose: Float[Tensor, "batch pose"] = torch.zeros(
                 (self.config.batch_size, self.config.pose_params),
                 device=self.shapedirs.device,
                 requires_grad=False,

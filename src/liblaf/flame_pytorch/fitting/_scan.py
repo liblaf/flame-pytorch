@@ -5,8 +5,9 @@ import attrs
 import torch
 import trimesh as tm
 from jaxtyping import Float, Integer
-from pytorch3d.loss.point_mesh_distance import point_face_distance
-from pytorch3d.structures import Meshes, Pointclouds
+from pytorch3d.loss import chamfer_distance
+from pytorch3d.ops.sample_points_from_meshes import sample_points_from_meshes
+from pytorch3d.structures import Meshes
 from pytorch3d.transforms import Transform3d
 from torch import Tensor
 from torch.optim import LBFGS, Optimizer
@@ -19,7 +20,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 @attrs.frozen
 class FitScanWeights:
-    mesh_face_distance: float = 2.0
+    chamfer: float = 2.0
     landmarks: float = 1e-2
     shape: float = 1e-4
     expression: float = 1e-4
@@ -32,23 +33,6 @@ class FitScanResult:
     shape: Float[Tensor, " S"]
     expression: Float[Tensor, " E"]
     pose: Float[Tensor, " P"]
-
-
-def pcl_mesh_distance(pcl: Pointclouds, mesh: Meshes) -> torch.Tensor:
-    points: Float[Tensor, "V 3"] = pcl.points_packed()
-    points_first_idx: Integer[Tensor, " 1"] = pcl.cloud_to_packed_first_idx()
-    max_points: int = cast("int", pcl.num_points_per_cloud().max().item())
-
-    verts: Float[Tensor, "V 3"] = mesh.verts_packed()
-    faces: Integer[Tensor, "F 3"] = mesh.faces_packed()
-    tris: Float[Tensor, "F 3 3"] = verts[faces]
-    tris_first_idx: Integer[Tensor, " 1"] = mesh.mesh_to_faces_packed_first_idx()
-
-    d2: Float[Tensor, ""] = point_face_distance(
-        points, points_first_idx, tris, tris_first_idx, max_points
-    )
-
-    return d2.mean()
 
 
 def fit_scan(
@@ -65,7 +49,7 @@ def fit_scan(
     _verts, source_landmarks = flame()
     matrix_inv, _transformed, cost = tm.registration.procrustes(
         landmarks.numpy(force=True),
-        source_landmarks[0, landmark_indices, :].numpy(force=True),
+        source_landmarks.squeeze(0)[landmark_indices].numpy(force=True),
     )
     logger.info("procrustes cost: %f", cost)
 
@@ -84,36 +68,45 @@ def fit_scan(
 
     def closure() -> Float[Tensor, ""]:
         optimizer.zero_grad()
-        verts, source_landmarks = flame(
-            shape=shape[torch.newaxis],
-            expression=expression[torch.newaxis],
-            pose=pose[torch.newaxis],
+        source_verts, source_landmarks = flame(
+            shape=shape.unsqueeze(0),
+            expression=expression.unsqueeze(0),
+            pose=pose.unsqueeze(0),
         )
-        source: Meshes = Meshes(verts, torch.tensor(flame.faces)[torch.newaxis]).to(
-            device
-        )
+        source_mesh: Meshes = Meshes(
+            source_verts, torch.tensor(flame.faces).unsqueeze(0)
+        ).to(device)
+        source_landmarks: Float[Tensor, "L 3"] = source_landmarks.squeeze(0)[
+            landmark_indices
+        ]
         transform_inv: Transform3d = Transform3d(device=device, matrix=matrix_inv.mT)
         target_verts: Float[Tensor, "V 3"] = transform_inv.transform_points(
-            target.verts_packed()
+            target.verts_list()[0]
         )
-        target_pcl: Pointclouds = Pointclouds(target_verts[torch.newaxis])
+        target_mesh: Meshes = Meshes([target_verts], target.faces_list()).to(device)
         target_landmarks: Float[Tensor, "L 3"] = transform_inv.transform_points(
             landmarks
         )
-        loss_mesh_face_distance: Float[Tensor, ""] = pcl_mesh_distance(
-            target_pcl, source
+
+        source_points: Float[Tensor, "1 P 3"] = cast(
+            "Tensor", sample_points_from_meshes(source_mesh)
         )
+        target_points: Float[Tensor, "1 P 3"] = cast(
+            "Tensor", sample_points_from_meshes(target_mesh)
+        )
+        loss_chamfer, _loss_normals = chamfer_distance(
+            target_points, source_points, single_directional=True
+        )
+
         loss_landmarks: Float[Tensor, ""] = (
-            (source_landmarks[:, landmark_indices, :] - target_landmarks)
-            .square()
-            .sum(dim=-1)
-            .mean()
+            (source_landmarks - target_landmarks).square().sum(dim=-1).mean()
         )
+
         loss_shape: Float[Tensor, ""] = shape.square().mean()
         loss_expression: Float[Tensor, ""] = expression.square().mean()
         loss_pose: Float[Tensor, ""] = pose.square().mean()
         loss: Float[Tensor, ""] = (
-            weights.mesh_face_distance * loss_mesh_face_distance
+            weights.chamfer * loss_chamfer
             + weights.landmarks * loss_landmarks
             + weights.shape * loss_shape
             + weights.expression * loss_expression
@@ -124,7 +117,7 @@ def fit_scan(
                 "fitting": {
                     "landmarks": {
                         "loss": {
-                            "mesh_face_distance": loss_mesh_face_distance,
+                            "chamfer": loss_chamfer,
                             "landmarks": loss_landmarks,
                             "shape": loss_shape,
                             "expression": loss_expression,
