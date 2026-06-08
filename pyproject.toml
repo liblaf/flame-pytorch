@@ -30,11 +30,15 @@ dependencies = [
   "environs>=14",
   "jaxtyping>=0.3",
   "lazy-loader>=0.4",
+  "liblaf-cherries>=3",
+  "liblaf-melon>=1.2.0",
   "numpy>=2",
   "pooch>=1",
-  "pytorch3d>=0.7.9",
+  "pytorch3d==0.7.9+d9839a9pt2.12.0cu132",
+  "pyvista>=0.48",
   "smplx>=0.1",
-  "torch>=2",
+  "torch==2.12.0",
+  "trimesh[easy]>=4.12.2",
   "wrapt>=2"
 ]
 dynamic = ["version"]
@@ -49,16 +53,6 @@ dynamic = ["version"]
 "Source Code" = "https://github.com/liblaf/flame"
 
 [dependency-groups]
-dev = [
-  "icecream>=2.2.0",
-  "liblaf-cherries>=3",
-  "liblaf-grapes>=8",
-  "liblaf-melon>=1.1.3",
-  "loguru>=0.7.3",
-  "pytorch3d==0.7.9+d9839a9pt2.12.0cu132",
-  "pyvista>=0.48",
-  "torch==2.12.0"
-]
 build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
 docs = [
   "griffe-fieldz>=0.5",
